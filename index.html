@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rock Booking & Manager Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090a0f;
+      --card-bg: #12151e;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #ff4757;
+      --accent-glow: rgba(255, 71, 87, 0.25);
+      --accent-secondary: #ffa502;
+      --accent-cyan: #2ed573;
+      --accent-blue: #1e90ff;
+      --text-main: #f1f2f6;
+      --text-muted: #8b92a5;
+      --code-bg: #0c0e14;
+      --radius: 12px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 15% 15%, rgba(255, 71, 87, 0.08) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 85%, rgba(30, 144, 255, 0.06) 0%, transparent 40%),
+                  var(--bg);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Nav */
+    header {
+      background: rgba(18, 21, 30, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0.85rem 1.5rem;
+    }
+
+    .nav-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff 30%, #ff6b81 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 6px;
+      -webkit-text-fill-color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.35rem;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--accent) 0%, #ff6b81 100%);
+      color: #fff;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1300px;
+      width: 100%;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem 3rem 1.5rem;
+    }
+
+    .tab-panel {
+      display: none;
+      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards & Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 1.3rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.25rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Form Inputs & Buttons */
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, var(--accent) 0%, #ff6b81 100%);
+      color: white;
+      border: none;
+      padding: 0.65rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px var(--accent-glow);
+      filter: brightness(1.1);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+    }
+    .btn-outline:hover {
+      border-color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    /* Table Styles */
+    .table-responsive {
+      overflow-x: auto;
+      margin-top: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--card-border);
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-primary { background: rgba(255, 71, 87, 0.15); color: #ff6b81; border: 1px solid rgba(255, 71, 87, 0.3); }
+    .badge-success { background: rgba(46, 213, 115, 0.15); color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.3); }
+    .badge-warning { background: rgba(255, 165, 2, 0.15); color: #ffa502; border: 1px solid rgba(255, 165, 2, 0.3); }
+    .badge-info { background: rgba(30, 144, 255, 0.15); color: #1e90ff; border: 1px solid rgba(30, 144, 255, 0.3); }
+
+    /* Code & Terminal */
+    .terminal-box {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #7bed9f;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    /* Stats Counter */
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .stat-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .stat-lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Live Scraper tool item */
+    .query-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 0.85rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    /* Notification / Toast */
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: #1e2430;
+      color: #fff;
+      border: 1px solid var(--accent);
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nagłówek i Nawigacja Zakładek -->
+  <header>
+    <div class="nav-container">
+      <div class="brand">
+        🎸 ROCK BOOKER HUB
+        <span class="brand-badge">App</span>
+      </div>
+      <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-contacts')">
+          📋 Baza Kontaktów (<span id="tabCount">0</span>)
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-scraper')">
+          🔍 Wyszukiwarka & Scraper
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-mailer')">
+          ✉️ Generator Mailingu & Pitch
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-recruitment')">
+          🤝 Rekrutacja Menedżera
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-automation')">
+          ⚙️ GitHub Cron & CLI
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ZAKŁADKA 1: BAZA KONTAKTÓW (CRM) -->
+    <section id="tab-contacts" class="tab-panel active">
+      <!-- Mini statystyki -->
+      <div class="grid-3" style="margin-bottom: 1.25rem;">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(255, 71, 87, 0.15); color: #ff6b81;">🏢</div>
+          <div>
+            <div class="stat-val" id="statTotal">0</div>
+            <div class="stat-lbl">Zapisanych Klubów/Miejsc</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(46, 213, 115, 0.15); color: #2ed573;">📧</div>
+          <div>
+            <div class="stat-val" id="statWithEmail">0</div>
+            <div class="stat-lbl">Z Bezpośrednim E-mailem</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(30, 144, 255, 0.15); color: #1e90ff;">📍</div>
+          <div>
+            <div class="stat-val" id="statWroclaw">0</div>
+            <div class="stat-lbl">Dolny Śląsk / Wrocław</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📋 Zarządzanie Kontaktami Bookingowymi</span>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn btn-outline btn-sm" onclick="exportToCSV()">📥 Pobierz CSV</button>
+            <label class="btn btn-secondary btn-sm" style="margin-bottom:0; cursor:pointer;">
+              📤 Wgraj CSV
+              <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="importCSV(event)">
+            </label>
+            <button class="btn btn-sm" onclick="showAddModal()">➕ Dodaj Kontakt</button>
+          </div>
+        </div>
+
+        <!-- Filtry i szukajka -->
+        <div class="grid-3" style="margin-bottom: 1rem;">
+          <div>
+            <label>Szukaj (Nazwa, Miasto, Email)</label>
+            <input type="text" id="searchInput" placeholder="np. Stary Klasztor, Wrocław..." oninput="renderContacts()">
+          </div>
+          <div>
+            <label>Kategoria</label>
+            <select id="categoryFilter" onchange="renderContacts()">
+              <option value="ALL">Wszystkie kategorie</option>
+              <option value="Klub">Klub Muzyczny</option>
+              <option value="Festiwal">Festiwal / Zlot</option>
+              <option value="Agencja">Agencja / Booker</option>
+              <option value="Dom Kultury">Dom Kultury / MOK</option>
+            </select>
+          </div>
+          <div>
+            <label>Status Kontaktu</label>
+            <select id="statusFilter" onchange="renderContacts()">
+              <option value="ALL">Wszystkie statusy</option>
+              <option value="Nowy">Nowy</option>
+              <option value="Wysłano Pitch">Wysłano Pitch</option>
+              <option value="Odpowiedź / Negocjacje">Odpowiedź / Negocjacje</option>
+              <option value="Zabookowano 🎸">Zabookowano 🎸</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tabela -->
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Nazwa & Miasto</th>
+                <th>Kategoria</th>
+                <th>Email</th>
+                <th>Telefon</th>
+                <th>Strona / Link</th>
+                <th>Status</th>
+                <th>Akcje</th>
+              </tr>
+            </thead>
+            <tbody id="contactsTableBody">
+              <!-- Renderowane dynamicznie przez JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZAKŁADKA 2: WYSZUKIWARKA & SCRAPER -->
+    <section id="tab-scraper" class="tab-panel">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🔍 Szybkie Wyszukiwanie Celów w Google</div>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Bezpośrednie zapytania targetowane na booking koncertów i kluby rockowe. Kliknij, aby natychmiast otworzyć Google z precyzyjnymi operatorami:
+          </p>
+
+          <div id="queryList">
+            <!-- Renderowane z JS -->
+          </div>
+
+          <div style="margin-top: 1.25rem;">
+            <label>Dodaj Własne Zapytanie</label>
+            <div style="display:flex; gap:0.5rem;">
+              <input type="text" id="customQueryInput" placeholder="np. pub rockowy Legnica booking kontakt">
+              <button class="btn btn-sm" onclick="addCustomQuery()">Dodaj</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚡ Inteligentny Wyciągacz Kontaktów (Text Parser)</div>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            Wklej tekst ze strony WWW klubu (lub treść zakładki "O nas / Kontakt"), a parser natychmiast wyłapie adresy e-mail i numery telefonów do bazy:
+          </p>
+          <textarea id="rawTextExtractor" rows="7" placeholder="Wklej tutaj skopiowany tekst ze strony klubu lub ogłoszenia..."></textarea>
+          
+          <div style="margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+            <button class="btn btn-sm" onclick="parseRawText()">🔍 Wyodrębnij Dane</button>
+            <span id="extractorResultMsg" style="font-size: 0.8rem; color: var(--accent-cyan);"></span>
+          </div>
+
+          <div id="extractedDataView" style="margin-top: 1rem; display: none;">
+            <label>Znalezione kontakty:</label>
+            <div class="terminal-box" id="extractedContentBox"></div>
+            <button class="btn btn-sm btn-secondary" style="margin-top: 0.5rem;" onclick="addExtractedToContacts()">
+              ➕ Zapisz jako nowy kontakt
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZAKŁADKA 3: GENERATOR MAILINGU & PITCH -->
+    <section id="tab-mailer" class="tab-panel">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">✉️ Generator Oferty Koncertowej (Pitch dla Bookera)</div>
+          </div>
+          
+          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div>
+              <label>Wybierz adresata z bazy</label>
+              <select id="pitchTargetSelect" onchange="populatePitchTarget()">
+                <option value="">-- Wybierz klub / organizatora --</option>
+              </select>
+            </div>
+            <div class="grid-2">
+              <div>
+                <label>Nazwa Zespołu</label>
+                <input type="text" id="bandNameInput" value="Twój Zespół Rockowy">
+              </div>
+              <div>
+                <label>Gatunek Muzyczny</label>
+                <input type="text" id="bandGenreInput" value="Energetyczny Hard Rock / Grunge">
+              </div>
+            </div>
+            <div>
+              <label>Link do nagrań / Teledysku (YouTube / Spotify)</label>
+              <input type="text" id="bandMediaInput" value="https://youtube.com/@twojzespol">
+            </div>
+            <div>
+              <label>Miasto skąd ruszacie</label>
+              <input type="text" id="bandCityInput" value="Wrocław / Dolny Śląsk">
+            </div>
+            <button class="btn" onclick="generatePitchEmail()">✨ Generuj Spersonalizowany Mail</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📄 Gotowa Wiadomość E-mail</div>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn-outline btn-sm" onclick="copyPitchText()">📋 Kopiuj Treść</button>
+              <button class="btn btn-sm" onclick="openMailClient()">🚀 Otwórz w Programie Pocztowym</button>
+            </div>
+          </div>
+
+          <label>Temat wiadomości</label>
+          <input type="text" id="pitchSubject" style="margin-bottom: 0.75rem;" readonly>
+
+          <label>Treść wiadomości</label>
+          <textarea id="pitchBody" rows="12" style="font-family:'JetBrains Mono', monospace; font-size:0.85rem; line-height:1.4;"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZAKŁADKA 4: REKRUTACJA MENEDŻERA -->
+    <section id="tab-recruitment" class="tab-panel">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🤝 Ogłoszenie Rekrutacyjne: Menedżer / Ogarniacz</div>
+            <button class="btn btn-sm" onclick="copyRecruitmentPost()">📋 Kopiuj Post</button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            Gotowy post zoptymalizowany pod kątem grup muzycznych na Facebooku (np. <i>Muzycy Wrocław</i>, <i>Ogłoszenia Muzyczne Polska</i>) oraz LinkedIn.
+          </p>
+          <textarea id="recruitmentText" rows="16" style="font-family:'JetBrains Mono', monospace; font-size:0.85rem; line-height:1.45;">[SZUKAMY OGARNIACZA / PROMOTORA / BOOKERA DLA ZESPOŁU ROCKOWEGO]
+Lokalizacja: Wrocław / Dolny Śląsk / Zdalnie
+
+Gramy energetycznego, koncertowego rocka i szukamy zmotywowanej osoby, która dołączy do teamu i pomoże nam rozwinąć skrzydła koncertowo!
+
+Czym będziesz się zajmować:
+🎸 Bezpośrednim kontaktem z klubami rockowymi, festiwalami i domami kultury,
+📅 Dogadywaniem terminów koncertów, supportów i riderów technicznych,
+📋 Pilnowaniem kalendarza występów i promocji wydarzeń.
+
+Rozliczenie i korzyści:
+💰 Prowizyjny podział: ustalony procent od każdej wynegocjowanej gaży za koncert (% zależny od zaangażowania),
+🎯 Opcja dla pasjonata / studenta chcącego zdobyć realne portfolio i kontakty w branży muzycznej (management/booking),
+🔥 Dostęp do zaplecza zespołu, backstage'u i wspólnych wyjazdów.
+
+Jeśli kręci Cię scena koncertowa, masz łatwość w pisaniu maili i dzwonieniu do klubów – odezwij się do nas w wiadomości prywatnej!</textarea>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🎯 Gdzie opublikować to ogłoszenie?</div>
+          </div>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem;">
+            <li class="query-item">
+              <div>
+                <strong>Grupy na Facebooku:</strong><br>
+                <span style="color:var(--text-muted)">"Muzycy Wrocław", "Koncerty Dolny Śląsk", "Zespoły Rockowe Polska"</span>
+              </div>
+              <a href="https://www.facebook.com/groups/feed/" target="_blank" class="btn btn-outline btn-sm">Otwórz FB</a>
+            </li>
+            <li class="query-item">
+              <div>
+                <strong>Portal Ogłoszeń Muzycznych:</strong><br>
+                <span style="color:var(--text-muted)">Muzycy.pl, OLX (Kategoria: Praca / Muzyka / Artyści)</span>
+              </div>
+              <a href="https://www.olx.pl" target="_blank" class="btn btn-outline btn-sm">OLX</a>
+            </li>
+            <li class="query-item">
+              <div>
+                <strong>Koła Naukowe & Uczelnie:</strong><br>
+                <span style="color:var(--text-muted)">Kierunki: Zarządzanie w kulturze, Dziennikarstwo muzyczne, Organizacja eventów</span>
+              </div>
+              <span class="badge badge-info">Stażyści / Studenci</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZAKŁADKA 5: GITHUB ACTIONS CRON & CLI -->
+    <section id="tab-automation" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚙️ Uruchamianie w Chmurze i Lokalne CLI</div>
+        </div>
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1rem;">
+          W Twoim repozytorium znajduje się już gotowy harmonogram <strong>GitHub Actions</strong> oraz modułowy skrypt Python.
+        </p>
+
+        <div class="grid-2">
+          <div>
+            <label>Polecenia CLI (uruchamianie w terminalu)</label>
+            <div class="terminal-box" style="margin-bottom: 0.75rem;">
+              <div class="terminal-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span style="font-size:0.75rem; color:var(--text-muted); margin-left: 0.5rem;">PowerShell / Bash</span>
+              </div>
+# 1. Scraping klubów do CSV:<br>
+python rock_booking_engine.py --mode scrape<br><br>
+# 2. Generowanie ogłoszenia rekrutacyjnego:<br>
+python rock_booking_engine.py --mode recruit<br><br>
+# 3. Wysyłka e-mail z zebranymi kontaktami:<br>
+python rock_booking_engine.py --mode email<br><br>
+# 4. Pełen cykl (Scrape + Recruit + Email):<br>
+python rock_booking_engine.py --mode all
+            </div>
+          </div>
+
+          <div>
+            <label>Jak działa GitHub Actions Cron?</label>
+            <div class="card" style="background: rgba(255,255,255,0.02); margin-bottom:0;">
+              <p style="font-size: 0.85rem; line-height: 1.6;">
+                1. <strong>Darmowe 2000 minut/mies.</strong> na GitHub Actions.<br>
+                2. Plik konfiguracyjny to <code style="color:var(--accent);">.github/workflows/weekly_booking.yml</code>.<br>
+                3. Wykonuje się automatycznie w każdy <strong>poniedziałek o 09:00 UTC</strong>.<br>
+                4. Aby dodać klucze i e-mail, wejdź w: <br>
+                <code>Repozytorium -> Settings -> Secrets and variables -> Actions</code> i dodaj:
+                <ul style="margin: 0.5rem 0 0 1.2rem; font-size: 0.8rem; color: var(--text-muted);">
+                  <li><code>SMTP_USER</code> (Twój Gmail)</li>
+                  <li><code>SMTP_PASSWORD</code> (Hasło do aplikacji Google)</li>
+                  <li><code>RECIPIENT_EMAIL</code> (Twój mail odbiorcy)</li>
+                  <li><code>SERPAPI_KEY</code> (Opcjonalny klucz)</li>
+                </ul>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast">Powiadomienie</div>
+
+  <script>
+    // --- BAZA DANYCH W LOCALSTORAGE ---
+    const STORAGE_KEY = 'rock_booking_contacts';
+
+    const INITIAL_CONTACTS = [
+      {
+        id: 1,
+        name: "Klub Stary Klasztor",
+        city: "Wrocław",
+        category: "Klub",
+        website: "http://staryklasztor.com.pl",
+        email: "koncerty@staryklasztor.com.pl",
+        phone: "+48 71 782 55 55",
+        status: "Nowy"
+      },
+      {
+        id: 2,
+        name: "Klub Muzyczny Liverpool",
+        city: "Wrocław",
+        category: "Klub",
+        website: "http://liverpool.wroclaw.pl",
+        email: "liverpool@liverpool.wroclaw.pl",
+        phone: "+48 71 341 04 43",
+        status: "Nowy"
+      },
+      {
+        id: 3,
+        name: "CK Wiatrak",
+        city: "Zabrze",
+        category: "Klub",
+        website: "https://wiatrak.art.pl",
+        email: "booking@wiatrak.art.pl",
+        phone: "+48 32 271 00 00",
+        status: "Nowy"
+      },
+      {
+        id: 4,
+        name: "Klub Hydrozagadka",
+        city: "Warszawa",
+        category: "Klub",
+        website: "https://hydrozagadka.waw.pl",
+        email: "koncerty@hydrozagadka.waw.pl",
+        phone: "Brak",
+        status: "Wysłano Pitch"
+      },
+      {
+        id: 5,
+        name: "Festiwal Rock na Bagnie",
+        city: "Goniądz",
+        category: "Festiwal",
+        website: "https://rocknabagnie.pl",
+        email: "kontakt@rocknabagnie.pl",
+        phone: "+48 600 000 000",
+        status: "Nowy"
+      }
+    ];
+
+    let contacts = [];
+
+    function loadContacts() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (data) {
+        try {
+          contacts = JSON.parse(data);
+        } catch (e) {
+          contacts = INITIAL_CONTACTS;
+        }
+      } else {
+        contacts = INITIAL_CONTACTS;
+        saveContacts();
+      }
+      renderContacts();
+      populateTargetDropdown();
+    }
+
+    function saveContacts() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(contacts));
+      renderContacts();
+      populateTargetDropdown();
+    }
+
+    // --- PRZEŁĄCZANIE ZAKŁADEK ---
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+
+      const activePanel = document.getElementById(tabId);
+      if (activePanel) activePanel.classList.add('active');
+
+      const btn = Array.from(document.querySelectorAll('.nav-tabs .tab-btn'))
+        .find(b => b.getAttribute('onclick').includes(tabId));
+      if (btn) btn.classList.add('active');
+    }
+
+    // --- RENDEROWANIE TABELI I STATYSTYK ---
+    function renderContacts() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const catFilter = document.getElementById('categoryFilter').value;
+      const statFilter = document.getElementById('statusFilter').value;
+      const tbody = document.getElementById('contactsTableBody');
+
+      let filtered = contacts.filter(c => {
+        const matchesSearch = c.name.toLowerCase().includes(search) ||
+                              c.city.toLowerCase().includes(search) ||
+                              c.email.toLowerCase().includes(search);
+        const matchesCat = (catFilter === 'ALL' || c.category === catFilter);
+        const matchesStatus = (statFilter === 'ALL' || c.status === statFilter);
+        return matchesSearch && matchesCat && matchesStatus;
+      });
+
+      tbody.innerHTML = '';
+      filtered.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <strong>${c.name}</strong><br>
+            <span style="font-size:0.75rem; color:var(--text-muted);">📍 ${c.city}</span>
+          </td>
+          <td><span class="badge badge-info">${c.category}</span></td>
+          <td><a href="mailto:${c.email}" style="color:#7bed9f; text-decoration:none;">${c.email}</a></td>
+          <td>${c.phone}</td>
+          <td><a href="${c.website}" target="_blank" style="color:#1e90ff;">${c.website.replace('https://','').replace('http://','')}</a></td>
+          <td>
+            <select style="padding:0.25rem; font-size:0.75rem;" onchange="updateContactStatus(${c.id}, this.value)">
+              <option value="Nowy" ${c.status === 'Nowy' ? 'selected' : ''}>Nowy</option>
+              <option value="Wysłano Pitch" ${c.status === 'Wysłano Pitch' ? 'selected' : ''}>Wysłano Pitch</option>
+              <option value="Odpowiedź / Negocjacje" ${c.status === 'Odpowiedź / Negocjacje' ? 'selected' : ''}>Odpowiedź / Negocjacje</option>
+              <option value="Zabookowano 🎸" ${c.status === 'Zabookowano 🎸' ? 'selected' : ''}>Zabookowano 🎸</option>
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="deleteContact(${c.id})" title="Usuń">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Statystyki
+      document.getElementById('statTotal').innerText = contacts.length;
+      document.getElementById('tabCount').innerText = contacts.length;
+      document.getElementById('statWithEmail').innerText = contacts.filter(c => c.email && c.email.includes('@')).length;
+      document.getElementById('statWroclaw').innerText = contacts.filter(c => c.city.toLowerCase().includes('wrocław') || c.city.toLowerCase().includes('doln')).length;
+    }
+
+    function updateContactStatus(id, newStatus) {
+      const target = contacts.find(c => c.id === id);
+      if (target) {
+        target.status = newStatus;
+        saveContacts();
+        showToast('Zaktualizowano status kontaktu!');
+      }
+    }
+
+    function deleteContact(id) {
+      if (confirm('Czy na pewno chcesz usunąć ten kontakt?')) {
+        contacts = contacts.filter(c => c.id !== id);
+        saveContacts();
+        showToast('Usunięto kontakt');
+      }
+    }
+
+    function showAddModal() {
+      const name = prompt('Nazwa klubu / organizatora:');
+      if (!name) return;
+      const city = prompt('Miasto:', 'Wrocław') || 'Polska';
+      const email = prompt('Adres e-mail:', '') || 'Brak';
+      const phone = prompt('Numer telefonu:', '') || 'Brak';
+      const website = prompt('Strona www:', 'https://') || '';
+      const category = prompt('Kategoria (Klub / Festiwal / Agencja / Dom Kultury):', 'Klub') || 'Klub';
+
+      contacts.unshift({
+        id: Date.now(),
+        name,
+        city,
+        category,
+        website,
+        email,
+        phone,
+        status: 'Nowy'
+      });
+      saveContacts();
+      showToast('Dodano nowy kontakt!');
+    }
+
+    // --- EKSPORT / IMPORT CSV ---
+    function exportToCSV() {
+      let csvContent = "data:text/csv;charset=utf-8,name,city,category,website,email,phone,status\n";
+      contacts.forEach(c => {
+        csvContent += `"${c.name}","${c.city}","${c.category}","${c.website}","${c.email}","${c.phone}","${c.status}"\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "baza_bookingowa_rock.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Pobrano plik CSV');
+    }
+
+    function importCSV(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const lines = evt.target.result.split('\n');
+        let imported = 0;
+        lines.slice(1).forEach(line => {
+          if (!line.trim()) return;
+          const cols = line.split(',').map(s => s.replace(/"/g, '').trim());
+          if (cols.length >= 5) {
+            contacts.push({
+              id: Date.now() + Math.random(),
+              name: cols[0],
+              city: cols[1] || 'Polska',
+              category: cols[2] || 'Klub',
+              website: cols[3] || '',
+              email: cols[4] || 'Brak',
+              phone: cols[5] || 'Brak',
+              status: cols[6] || 'Nowy'
+            });
+            imported++;
+          }
+        });
+        saveContacts();
+        showToast(`Zaimportowano ${imported} kontaktów!`);
+      };
+      reader.readAsText(file);
+    }
+
+    // --- ZAPYTANIA SEARCH ENGINE ---
+    const DEFAULT_QUERIES = [
+      'kluby rockowe Wrocław koncerty booking kontakt',
+      'organizator koncertów rockowych Dolny Śląsk mail',
+      'festiwale rockowe motocyklowe zgłoszenia zespołów 2026',
+      'agencja bookingowa zespoły rockowe Polska',
+      'dom kultury koncerty rockowe zgłoszenia dolnośląskie'
+    ];
+
+    function renderQueryList() {
+      const container = document.getElementById('queryList');
+      container.innerHTML = '';
+      DEFAULT_QUERIES.forEach(q => {
+        const item = document.createElement('div');
+        item.className = 'query-item';
+        item.innerHTML = `
+          <span>${q}</span>
+          <a href="https://www.google.com/search?q=${encodeURIComponent(q)}" target="_blank" class="btn btn-outline btn-sm">
+            🔍 Szukaj w Google
+          </a>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function addCustomQuery() {
+      const input = document.getElementById('customQueryInput');
+      if (input.value.trim()) {
+        DEFAULT_QUERIES.push(input.value.trim());
+        renderQueryList();
+        input.value = '';
+        showToast('Dodano zapytanie!');
+      }
+    }
+
+    // --- PARSER SUROWEGO TEKSTU ---
+    let parsedTempContact = null;
+
+    function parseRawText() {
+      const text = document.getElementById('rawTextExtractor').value;
+      const emailRegex = /[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/g;
+      const phoneRegex = /(?:\+?48)?(?:\s*\(?0\)?\s*)?[1-9]\d{1,2}(?:[\s.-]?\d{3}){2}|(?:\+?48)?\s*\d{3}[\s.-]?\d{3}[\s.-]?\d{3}/g;
+
+      const emails = Array.from(new Set(text.match(emailRegex) || []));
+      const phones = Array.from(new Set(text.match(phoneRegex) || []));
+
+      const view = document.getElementById('extractedDataView');
+      const box = document.getElementById('extractedContentBox');
+      const msg = document.getElementById('extractorResultMsg');
+
+      if (emails.length === 0 && phones.length === 0) {
+        msg.innerText = "Nie znaleziono danych kontaktowych w wklejonym tekście.";
+        view.style.display = 'none';
+        return;
+      }
+
+      msg.innerText = `Znaleziono: ${emails.length} e-mail(i), ${phones.length} tel!`;
+      box.innerHTML = `
+        <strong>E-maile:</strong> ${emails.join(', ') || 'Brak'}<br>
+        <strong>Telefony:</strong> ${phones.join(', ') || 'Brak'}
+      `;
+      view.style.display = 'block';
+
+      parsedTempContact = {
+        name: "Nowy Kontakt ze Schowka",
+        city: "Wrocław / Polska",
+        category: "Klub",
+        website: "",
+        email: emails[0] || "Brak",
+        phone: phones[0] || "Brak",
+        status: "Nowy"
+      };
+    }
+
+    function addExtractedToContacts() {
+      if (parsedTempContact) {
+        const name = prompt('Podaj nazwę dla tego kontaktu:', 'Nowy Klub / Booker');
+        if (name) parsedTempContact.name = name;
+        parsedTempContact.id = Date.now();
+        contacts.unshift({...parsedTempContact});
+        saveContacts();
+        showToast('Zapisano kontakt do bazy!');
+        document.getElementById('extractedDataView').style.display = 'none';
+        document.getElementById('rawTextExtractor').value = '';
+      }
+    }
+
+    // --- GENERATOR MAILINGU ---
+    function populateTargetDropdown() {
+      const select = document.getElementById('pitchTargetSelect');
+      if (!select) return;
+      select.innerHTML = '<option value="">-- Wybierz klub / organizatora --</option>';
+      contacts.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.innerText = `${c.name} (${c.city})`;
+        select.appendChild(opt);
+      });
+    }
+
+    function populatePitchTarget() {
+      generatePitchEmail();
+    }
+
+    function generatePitchEmail() {
+      const targetId = document.getElementById('pitchTargetSelect').value;
+      const bandName = document.getElementById('bandNameInput').value;
+      const genre = document.getElementById('bandGenreInput').value;
+      const media = document.getElementById('bandMediaInput').value;
+      const city = document.getElementById('bandCityInput').value;
+
+      let clubName = "Drodzy Organizatorzy";
+      if (targetId) {
+        const found = contacts.find(c => c.id == targetId);
+        if (found) clubName = found.name;
+      }
+
+      document.getElementById('pitchSubject').value = `🎸 Propozycja koncertowa: ${bandName} (${genre}) – Booking`;
+      
+      const body = `Dzień dobry,
+
+Piszę z ramienia zespołu ${bandName} (${genre}, pochodzimy z: ${city}). 
+Obserwujemy wydarzenia w ${clubName} i z przyjemnością wystąpilibyśmy na Waszej scenie w najbliższych miesiącach (samodzielnie lub w ramach wspólnego wieczoru / supportu dla innej kapeli).
+
+Gramy energetycznego, żywiołowego rocka, który świetnie sprawdza się na żywo i przyciąga publikę pod scenę.
+
+Posłuchajcie naszych materiałów:
+🔗 Link do nagrań / live video: ${media}
+
+Posiadamy gotowy rider techniczny oraz własny backline.
+Czy dysponujecie wolnymi terminami w najbliższym kwartale na koncert rockowy?
+
+Pozdrawiam serdecznie,
+${bandName}
+Tel / Kontakt`;
+
+      document.getElementById('pitchBody').value = body;
+    }
+
+    function copyPitchText() {
+      const text = document.getElementById('pitchBody').value;
+      navigator.clipboard.writeText(text);
+      showToast('Skopiowano treść maila!');
+    }
+
+    function openMailClient() {
+      const targetId = document.getElementById('pitchTargetSelect').value;
+      let email = "";
+      if (targetId) {
+        const found = contacts.find(c => c.id == targetId);
+        if (found) email = found.email;
+      }
+      const subject = encodeURIComponent(document.getElementById('pitchSubject').value);
+      const body = encodeURIComponent(document.getElementById('pitchBody').value);
+      window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
+    }
+
+    function copyRecruitmentPost() {
+      const text = document.getElementById('recruitmentText').value;
+      navigator.clipboard.writeText(text);
+      showToast('Skopiowano treść posta rekrutacyjnego!');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2500);
+    }
+
+    // Inicjalizacja przy ładowaniu
+    window.addEventListener('DOMContentLoaded', () => {
+      loadContacts();
+      renderQueryList();
+      generatePitchEmail();
+    });
+  </script>
+</body>
+</html>
