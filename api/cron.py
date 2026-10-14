@@ -5,7 +5,7 @@ import sys
 
 # Umożliwienie importu skryptu z katalogu głównego
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from rock_booking_engine import run_scraper, send_email_report
+from rock_booking_engine import run_venue_scraper, run_manager_scout, send_email_report
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -21,17 +21,32 @@ class handler(BaseHTTPRequestHandler):
             return
 
         try:
-            output_csv = "/tmp/kontakty_booking.csv"
-            contacts = run_scraper(output_csv=output_csv)
-            send_email_report(output_csv, contacts)
+            # Pliki tymczasowe w środowisku bezserwerowym Vercel
+            venues_csv = "/tmp/kontakty_booking.csv"
+            managers_csv = "/tmp/kandydaci_menedzerowie.csv"
+
+            # 1. Przeszukanie miejsc koncertowych (Wrocław + 200 km)
+            venues = run_venue_scraper(output_csv=venues_csv)
+
+            # 2. Przeszukanie menedżerów i agencji bookingowych pod kątem płatnych koncertów
+            managers = run_manager_scout(output_csv=managers_csv)
+
+            # 3. Wysłanie powiadomienia e-mail z raportem i załącznikami CSV
+            send_email_report(
+                venues_csv=venues_csv,
+                venues=venues,
+                managers_csv=managers_csv,
+                managers=managers
+            )
 
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             response = {
                 "success": True,
-                "message": f"Przeskanowano i wysłano raport z {len(contacts)} kontaktami.",
-                "contacts_count": len(contacts)
+                "message": f"Przeskanowano sieć! Znaleziono {len(venues)} miejsc koncertowych i {len(managers)} menedżerów/agencji. Wysłano e-mail.",
+                "venues_count": len(venues),
+                "managers_count": len(managers)
             }
             self.wfile.write(json.dumps(response).encode('utf-8'))
         except Exception as e:
