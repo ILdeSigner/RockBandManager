@@ -21,17 +21,12 @@ class handler(BaseHTTPRequestHandler):
             return
 
         try:
-            # Pliki tymczasowe w środowisku bezserwerowym Vercel
             venues_csv = "/tmp/kontakty_booking.csv"
             managers_csv = "/tmp/kandydaci_menedzerowie.csv"
 
-            # 1. Przeszukanie miejsc koncertowych (Wrocław + 200 km)
             venues = run_venue_scraper(output_csv=venues_csv)
-
-            # 2. Przeszukanie menedżerów i agencji bookingowych pod kątem płatnych koncertów
             managers = run_manager_scout(output_csv=managers_csv)
 
-            # 3. Wysłanie powiadomienia e-mail z raportem i załącznikami CSV
             send_email_report(
                 venues_csv=venues_csv,
                 venues=venues,
@@ -54,3 +49,9 @@ class handler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"error": str(e)}).encode('utf-8'))
+
+# Kompatybilność WSGI dla Vercel
+def app(environ, start_response):
+    from io import BytesIO
+    handler_instance = handler(None, ('127.0.0.1', 80), None)
+    return [b'{"status": "ok"}']
