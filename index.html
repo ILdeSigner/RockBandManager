@@ -756,58 +756,8 @@ python rock_booking_engine.py --mode all
     // --- BAZA DANYCH W LOCALSTORAGE ---
     const STORAGE_KEY = 'rock_booking_contacts';
 
-    const INITIAL_CONTACTS = [
-      {
-        id: 1,
-        name: "Klub Stary Klasztor",
-        city: "Wrocław",
-        category: "Klub",
-        website: "http://staryklasztor.com.pl",
-        email: "koncerty@staryklasztor.com.pl",
-        phone: "+48 71 782 55 55",
-        status: "Nowy"
-      },
-      {
-        id: 2,
-        name: "Klub Muzyczny Liverpool",
-        city: "Wrocław",
-        category: "Klub",
-        website: "http://liverpool.wroclaw.pl",
-        email: "liverpool@liverpool.wroclaw.pl",
-        phone: "+48 71 341 04 43",
-        status: "Nowy"
-      },
-      {
-        id: 3,
-        name: "CK Wiatrak",
-        city: "Zabrze",
-        category: "Klub",
-        website: "https://wiatrak.art.pl",
-        email: "booking@wiatrak.art.pl",
-        phone: "+48 32 271 00 00",
-        status: "Nowy"
-      },
-      {
-        id: 4,
-        name: "Klub Hydrozagadka",
-        city: "Warszawa",
-        category: "Klub",
-        website: "https://hydrozagadka.waw.pl",
-        email: "koncerty@hydrozagadka.waw.pl",
-        phone: "Brak",
-        status: "Wysłano Pitch"
-      },
-      {
-        id: 5,
-        name: "Festiwal Rock na Bagnie",
-        city: "Goniądz",
-        category: "Festiwal",
-        website: "https://rocknabagnie.pl",
-        email: "kontakt@rocknabagnie.pl",
-        phone: "+48 600 000 000",
-        status: "Nowy"
-      }
-    ];
+    // Pusta baza startowa – wypełniana dynamicznie przez import CSV lub ręczne dodawanie
+    const INITIAL_CONTACTS = [];
 
     let contacts = [];
 
@@ -982,13 +932,20 @@ python rock_booking_engine.py --mode all
       reader.readAsText(file);
     }
 
-    // --- ZAPYTANIA SEARCH ENGINE ---
+    // --- ZAPYTANIA SEARCH ENGINE (WROCŁAW + PROMIEŃ 200 KM) ---
     const DEFAULT_QUERIES = [
-      'kluby rockowe Wrocław koncerty booking kontakt',
-      'organizator koncertów rockowych Dolny Śląsk mail',
-      'festiwale rockowe motocyklowe zgłoszenia zespołów 2026',
-      'agencja bookingowa zespoły rockowe Polska',
-      'dom kultury koncerty rockowe zgłoszenia dolnośląskie'
+      'klub rockowy muzyka na żywo koncerty booking kontakt Wrocław',
+      'pub rockowy koncerty na żywo Dolny Śląsk booking mail',
+      'klub muzyczny koncerty rockowe Legnica Wałbrzych Jelenia Góra booking',
+      'kluby z muzyką na żywo Opole Brzeg Nysa koncerty mail',
+      'klub rockowy koncerty Leszno Ostrów Wielkopolski Kalisz booking mail',
+      'pub muzyczny koncerty Zielona Góra Nowa Sól Żary kontakt mail',
+      'ośrodek kultury koncerty zespoły rockowe zgłoszenia Dolny Śląsk',
+      'MOK WCK GOK koncerty rock booking kontakt dolnośląskie',
+      'miejski dom kultury koncerty dni miasta booking zespołów Dolny Śląsk Opole',
+      'zlot motocyklowy koncerty zespołów rockowych zgłoszenia Dolny Śląsk',
+      'festiwal rockowy przegląd kapel zgłoszenia zespołów Dolny Śląsk',
+      'festiwal rockowy zlot motocyklowy muzyka na żywo Opolszczyzna Lubuskie'
     ];
 
     function renderQueryList() {
